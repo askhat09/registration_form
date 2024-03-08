@@ -91,6 +91,15 @@
 </template>
 
 <script>
+import axios from 'axios';
+import MockAdapter from 'axios-mock-adapter';
+
+const mock = new MockAdapter(axios);
+mock.onPost('/api/register').reply(200, {
+  status: 'success',
+  message: 'Пользователь успешно зарегистрирован',
+});
+
 export default {
   data() {
     return {
@@ -106,20 +115,32 @@ export default {
         { value: 1, name: 'Директор' },
         { value: 2, name: 'Менеджер' },
         { value: 3, name: 'Сотрудник' },
-        // Добавьте свои значения должностей здесь
       ],
     };
   },
   methods: {
     register() {
-      // Проверка на совпадение паролей
       if (this.password !== this.passwordRepeat) {
         alert('Пароли не совпадают');
         return;
       }
-      // Здесь должна быть отправка данных на сервер
-      // Предположим, что регистрация прошла успешно
-      this.registered = true;
+      axios.post('/api/register', {
+        public: this.profileVisibility,
+        username: this.username,
+        role: this.role,
+        email: this.email,
+        password: this.password,
+        password_repeat: this.passwordRepeat
+      })
+      .then(response => {
+        console.log(response.data);
+        alert(response.data.message);
+        this.registered = true;
+      })
+      .catch(error => {
+        console.error('Ошибка при отправке данных:', error);
+        alert('Произошла ошибка при регистрации');
+      });
     },
   },
 };
@@ -127,45 +148,50 @@ export default {
 
 <style scoped>
 .registration-container {
+  height: 100vh;
+
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100vh;
 }
 
 .registration-form {
   max-width: 960px;
   width: 100%;
-  border-radius: 15px;
-  background-color: #fff;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
   display: flex;
   flex-direction: column;
+
+  border-radius: 15px;
+  background-color: #fff;
 }
 
 .registration-form h2 {
-  font-size: 19px;
-  line-height: 27px;
   margin-bottom: 20px;
   padding-left: 30px;
+
+  font-size: 19px;
+  line-height: 27px;
 }
 
 .registration-form .divider {
-  border: none;
   height: 1px;
-  background-color: #d9d9d9;
   width: 100%;
+
   margin-bottom: 20px;
+
+  border: none;
+  background-color: #d9d9d9;
 }
 
 .registration-form label {
-  display: block;
   position: relative;
-  font-size: 16px;
-  font-weight: 500;
   display: flex;
   flex-direction: column;
   gap: 10px;
+
+  font-size: 16px;
+  font-weight: 500;
 }
 
 .registration-form label > span {
@@ -179,12 +205,13 @@ export default {
   box-sizing: border-box;
   width: 100%;
   padding: 10px;
+  margin-bottom: 30px;
+
   font-size: 14px;
   border-radius: 11px;
   border: 1px solid #e6e6eb;
   font-family: 'Montserrat', sans-serif;
   color: #9292a0;
-  margin-bottom: 30px;
 }
 
 .registration-form ::placeholder {
@@ -193,6 +220,7 @@ export default {
 
 .registration-form button {
   padding: 11px 85px;
+
   font-size: 16px;
   border: none;
   border-radius: 8px;
@@ -206,14 +234,12 @@ export default {
   color: #fff;
 }
 
-.form-header {
-}
-
 .form-title {
-  font-size: 16px;
-  line-height: 19px;
   padding-left: 30px;
   margin-bottom: 30px;
+
+  font-size: 16px;
+  line-height: 19px;
   font-weight: 500;
 }
 
@@ -322,6 +348,7 @@ input:checked + .slider:before {
 
 .agreement-checkbox label {
   display: block;
+
   font-size: 14px;
   font-weight: 400;
 }

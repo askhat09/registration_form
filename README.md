@@ -1,3 +1,6 @@
+# The site is available via this link
+https://askhat09.github.io/registration_form/
+
 # reg_form
 
 ## Project setup

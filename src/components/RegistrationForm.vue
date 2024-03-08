@@ -1,92 +1,96 @@
 <template>
   <div class="registration-container">
-    <div class="registration-form">
-      <div class="form-header">
-        <h2>Регистрация</h2>
+    <div v-if="!registered" class="registration-form">
+      <form @submit.prevent="register">
+        <div class="form-header">
+          <h2>Регистрация</h2>
+          <hr class="divider" />
+        </div>
+        <div class="form-title">Заполните Ваши данные</div>
+        <div class="form-fields">
+          <div class="form-column">
+            <div>
+              <input
+                type="text"
+                v-model="username"
+                id="username"
+                placeholder="Имя"
+                required
+              />
+            </div>
+            <div>
+              <input
+                type="password"
+                v-model="password"
+                id="password"
+                placeholder="Пароль"
+                required
+              />
+            </div>
+          </div>
+          <div class="form-column">
+            <div>
+              <input
+                type="email"
+                v-model="email"
+                id="email"
+                placeholder="Email"
+                required
+              />
+            </div>
+            <div>
+              <select v-model="role" id="role" required>
+                <option :value="null" disabled>Должность</option>
+                <option
+                  :value="position.value"
+                  v-for="position in positions"
+                  :key="position.value"
+                >
+                  {{ position.name }}
+                </option>
+              </select>
+            </div>
+            <div>
+              <input
+                type="password"
+                v-model="passwordRepeat"
+                id="password_repeat"
+                placeholder="Повторите пароль"
+                required
+              />
+            </div>
+          </div>
+        </div>
         <hr class="divider" />
-      </div>
-      <div class="form-title">Заполните Ваши данные</div>
-      <div class="form-fields">
-        <div class="form-column">
-          <div>
-            <input
-              type="text"
-              v-model="username"
-              id="username"
-              placeholder="Имя"
-              required
-            />
+        <div class="form-footer">
+          <div class="switch-container">
+            <label class="switch">
+              <input type="checkbox" v-model="profileVisibility" />
+              <span class="slider"></span>
+            </label>
+            <label
+              >Хотите чтобы Ваш профиль видели другие участники платформы?
+              <span
+                >Включает профиль для просмотра другими пользователями по
+                ссылке</span
+              ></label
+            >
           </div>
-          <div>
-            <input
-              type="password"
-              v-model="password"
-              id="password"
-              placeholder="Пароль"
-              required
-            />
-          </div>
-        </div>
-        <div class="form-column">
-          <div>
-            <input
-              type="email"
-              v-model="email"
-              id="email"
-              placeholder="Email"
-              required
-            />
-          </div>
-          <div>
-            <select v-model="role" id="role" required>
-              <option :value="null" disabled>Должность</option>
-              <option
-                :value="position.value"
-                v-for="position in positions"
-                :key="position.value"
+          <div class="agreement-container">
+            <div class="agreement-checkbox">
+              <input type="checkbox" id="agree" v-model="agree" required />
+              <label for="agree"
+                >Регистрируясь, Вы соглашаетесь
+                <a href="#">с политикой конфиденциальности</a> и обработкой
+                <a href="#">персональных данных</a></label
               >
-                {{ position.name }}
-              </option>
-            </select>
-          </div>
-          <div>
-            <input
-              type="password"
-              v-model="passwordRepeat"
-              id="password_repeat"
-              placeholder="Повторите пароль"
-              required
-            />
+            </div>
+            <button :disabled="!agree" type="submit">Зарегистрироваться</button>
           </div>
         </div>
-      </div>
-      <hr class="divider" />
-      <div class="form-footer">
-        <div class="switch-container">
-          <label class="switch">
-            <input type="checkbox" v-model="profileVisibility" />
-            <span class="slider"></span>
-          </label>
-          <label
-            >Хотите чтобы Ваш профиль видели другие участники платформы?
-            <span
-              >Включает профиль для просмотра другими пользователями по
-              ссылке</span
-            ></label
-          >
-        </div>
-        <div class="agreement-container">
-          <div class="agreement-checkbox">
-            <input type="checkbox" id="agree" v-model="agree" required />
-            <label for="agree">Регистрируясь, Вы соглашаетесь <a href="#">с политикой конфиденциальности</a> и обработкой <a href="#">персональных данных</a></label>
-          </div>
-          <button type="button" :disabled="!agree" @click="register">
-            Зарегистрироваться
-          </button>
-        </div>
-      </div>
-      <p v-if="registered">Вы успешно зарегистрированы!</p>
+      </form>
     </div>
+    <p v-else>Вы успешно зарегистрированы!</p>
   </div>
 </template>
 
@@ -124,23 +128,23 @@ export default {
         alert('Пароли не совпадают');
         return;
       }
-      axios.post('/api/register', {
-        public: this.profileVisibility,
-        username: this.username,
-        role: this.role,
-        email: this.email,
-        password: this.password,
-        password_repeat: this.passwordRepeat
-      })
-      .then(response => {
-        console.log(response.data);
-        alert(response.data.message);
-        this.registered = true;
-      })
-      .catch(error => {
-        console.error('Ошибка при отправке данных:', error);
-        alert('Произошла ошибка при регистрации');
-      });
+      axios
+        .post('/api/register', {
+          public: this.profileVisibility,
+          username: this.username,
+          role: this.role,
+          email: this.email,
+          password: this.password,
+          password_repeat: this.passwordRepeat,
+        })
+        .then((response) => {
+          console.log(response.data);
+          this.registered = true;
+        })
+        .catch((error) => {
+          console.error('Ошибка при отправке данных:', error);
+          alert('Произошла ошибка при регистрации');
+        });
     },
   },
 };
@@ -224,13 +228,13 @@ export default {
   font-size: 16px;
   border: none;
   border-radius: 8px;
-  background-color: #DBE4F8;
-  color: #497ADA;
+  background-color: #dbe4f8;
+  color: #497ada;
   cursor: pointer;
 }
 
 .registration-form button:hover {
-  background-color: #3586FF;
+  background-color: #3586ff;
   color: #fff;
 }
 
@@ -310,11 +314,11 @@ export default {
 }
 
 input:checked + .slider {
-  background-color: #3586FF;
+  background-color: #3586ff;
 }
 
 input:focus + .slider {
-  box-shadow: 0 0 1px #3586FF;
+  box-shadow: 0 0 1px #3586ff;
 }
 
 input:checked + .slider:before {
@@ -353,9 +357,9 @@ input:checked + .slider:before {
   font-weight: 400;
 }
 
-.agreement-checkbox label>a {
+.agreement-checkbox label > a {
   text-decoration: none;
-  color: #3586FF;
+  color: #3586ff;
 }
 @media only screen and (max-width: 600px) {
   .form-fields {
@@ -370,5 +374,4 @@ input:checked + .slider:before {
     flex-direction: column;
   }
 }
-
 </style>
